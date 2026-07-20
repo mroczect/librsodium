@@ -1,6 +1,5 @@
 pub mod core;
 pub mod handler;
-
 pub use handler::error::SodiumError;
 pub use handler::types::{ErrorBody, LibrsodiumResponse};
 
