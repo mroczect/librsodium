@@ -61,6 +61,21 @@ impl From<std::io::Error> for SodiumError {
     }
 }
 
+// Konversi dari libsodium_rs::SodiumError ke SodiumError wrapper
+impl From<libsodium_rs::SodiumError> for SodiumError {
+    fn from(e: libsodium_rs::SodiumError) -> Self {
+        match e {
+            libsodium_rs::SodiumError::InvalidKey(m) => SodiumError::InvalidKey(m),
+            libsodium_rs::SodiumError::InvalidNonce(m) => SodiumError::InvalidNonce(m),
+            libsodium_rs::SodiumError::InvalidInput(m) => SodiumError::InvalidInput(m),
+            libsodium_rs::SodiumError::EncryptionError(m) => SodiumError::Encryption(m),
+            libsodium_rs::SodiumError::DecryptionError(m) => SodiumError::Decryption(m),
+            libsodium_rs::SodiumError::OperationError(m) => SodiumError::Operation(m),
+            _ => SodiumError::Operation(e.to_string()),
+        }
+    }
+}
+
 impl From<SodiumError> for ErrorBody {
     fn from(e: SodiumError) -> Self {
         match e {
