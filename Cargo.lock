@@ -252,7 +252,7 @@ dependencies = [
 
 [[package]]
 name = "librsodium"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "ctor 1.0.9",
  "libsodium-rs",
