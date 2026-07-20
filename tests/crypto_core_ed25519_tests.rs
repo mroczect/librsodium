@@ -46,7 +46,7 @@ fn scalar_arithmetic_properties() {
 #[test]
 fn scalar_invert_identity() {
     let mut s = ed25519::scalar_random();
-    s[0] |= 1; 
+    s[0] |= 1;
     let inv = ed25519::scalar_invert(&s).unwrap();
     let prod = ed25519::scalar_mul(&s, &inv).unwrap();
     assert_eq!(prod[0], 1);
