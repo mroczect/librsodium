@@ -48,12 +48,14 @@ pub fn scalar_reduce(s: &[u8]) -> Result<[u8; SCALARBYTES], SodiumError> {
     Ok(lib_ed25519::scalar_reduce(s)?)
 }
 
-pub fn random() -> [u8; BYTES] {
-    lib_ed25519::random()
+pub fn random() -> Result<[u8; BYTES], SodiumError> {
+    crate::init()?;
+    Ok(lib_ed25519::random())
 }
 
-pub fn scalar_random() -> [u8; SCALARBYTES] {
-    lib_ed25519::scalar_random()
+pub fn scalar_random() -> Result<[u8; SCALARBYTES], SodiumError> {
+    crate::init()?;
+    Ok(lib_ed25519::scalar_random())
 }
 
 pub fn scalar_invert(s: &[u8]) -> Result<[u8; SCALARBYTES], SodiumError> {
