@@ -1,0 +1,13 @@
+[package]
+name = "librsodium"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+libsodium-rs = "0.2.4"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+thiserror = "2.0.19"
+
+[dev-dependencies]
+ctor = "1.0.9"
