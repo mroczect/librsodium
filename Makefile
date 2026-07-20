@@ -1,4 +1,4 @@
-.PHONY: all build release check test lint fmt clippy clean run install ci
+.PHONY: all build release check test test-verbose fmt fmt-check clippy lint clean run install uninstall ci rebuild snap
 
 all: build
 
@@ -38,7 +38,7 @@ install:
 	cargo install --path .
 
 uninstall:
-	cargo uninstall jsscli
+	cargo uninstall librsodium
 
 ci: fmt-check clippy test
 
@@ -47,3 +47,7 @@ rebuild:
 
 snap:
 	snapcat tests -f markdown -o dev/tests.snapcat.md && snapcat src -f markdown -o dev/src.snapcat.md
+
+# CLeanCoDe
+clcd:
+	uncomment -f -r -d src && uncomment -f -r -d tests
