@@ -1,6 +1,7 @@
 pub mod ed25519;
 pub mod hchacha20;
 pub mod hsalsa20;
+pub mod keccak1600;
 pub mod ristretto255;
 pub mod salsa20;
 pub mod salsa2012;
