@@ -16,14 +16,14 @@ fn constants_are_correct() {
 
 #[test]
 fn random_point_is_valid() {
-    let p = ed25519::random();
+    let p = ed25519::random().unwrap();
     assert!(ed25519::is_valid_point(&p).unwrap());
 }
 
 #[test]
 fn add_sub_consistency() {
-    let p = ed25519::random();
-    let q = ed25519::random();
+    let p = ed25519::random().unwrap();
+    let q = ed25519::random().unwrap();
     let sum = ed25519::add(&p, &q).unwrap();
     let diff = ed25519::sub(&sum, &q).unwrap();
     assert_eq!(diff, p);
@@ -31,8 +31,8 @@ fn add_sub_consistency() {
 
 #[test]
 fn scalar_arithmetic_properties() {
-    let x = ed25519::scalar_random();
-    let y = ed25519::scalar_random();
+    let x = ed25519::scalar_random().unwrap();
+    let y = ed25519::scalar_random().unwrap();
 
     let xy = ed25519::scalar_add(&x, &y).unwrap();
     let yx = ed25519::scalar_add(&y, &x).unwrap();
@@ -45,7 +45,7 @@ fn scalar_arithmetic_properties() {
 
 #[test]
 fn scalar_invert_identity() {
-    let mut s = ed25519::scalar_random();
+    let mut s = ed25519::scalar_random().unwrap();
     s[0] |= 1;
     let inv = ed25519::scalar_invert(&s).unwrap();
     let prod = ed25519::scalar_mul(&s, &inv).unwrap();

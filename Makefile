@@ -51,3 +51,6 @@ snap:
 # CLeanCoDe
 clcd:
 	uncomment -f -r -d src && uncomment -f -r -d tests
+
+reci:
+	make fmt && make clcd && make ci && velodiff check
