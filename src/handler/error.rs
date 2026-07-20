@@ -61,7 +61,6 @@ impl From<std::io::Error> for SodiumError {
     }
 }
 
-// Konversi dari libsodium_rs::SodiumError ke SodiumError wrapper
 impl From<libsodium_rs::SodiumError> for SodiumError {
     fn from(e: libsodium_rs::SodiumError) -> Self {
         match e {
