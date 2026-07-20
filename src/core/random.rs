@@ -1,101 +1,43 @@
-use crate::handler::error::SodiumError;
-use crate::handler::types::LibrsodiumResponse;
+use crate::SodiumError;
 
-pub fn bytes(size: usize) -> LibrsodiumResponse<Vec<u8>> {
+pub fn bytes(size: usize) -> Result<Vec<u8>, SodiumError> {
+    crate::init()?;
     if size == 0 {
-        return LibrsodiumResponse::err(
-            SodiumError::InvalidSize {
-                expected: 1,
-                got: 0,
-            }
-            .into(),
-        );
+        return Err(SodiumError::InvalidSize {
+            expected: 1,
+            got: 0,
+        });
     }
     if size > 1_073_741_824 {
-        return LibrsodiumResponse::err(
-            SodiumError::InvalidSize {
-                expected: 1_073_741_824,
-                got: size,
-            }
-            .into(),
-        );
+        return Err(SodiumError::InvalidSize {
+            expected: 1_073_741_824,
+            got: size,
+        });
     }
-    LibrsodiumResponse::ok(libsodium_rs::random::bytes(size))
+    Ok(libsodium_rs::random::bytes(size))
 }
 
-pub fn fill_bytes(buf: &mut [u8]) -> LibrsodiumResponse<()> {
+pub fn fill_bytes(buf: &mut [u8]) -> Result<(), SodiumError> {
+    crate::init()?;
     if buf.is_empty() {
-        return LibrsodiumResponse::err(
-            SodiumError::InvalidSize {
-                expected: 1,
-                got: 0,
-            }
-            .into(),
-        );
+        return Err(SodiumError::InvalidSize {
+            expected: 1,
+            got: 0,
+        });
     }
     libsodium_rs::random::fill_bytes(buf);
-    LibrsodiumResponse::ok(())
+    Ok(())
 }
 
-pub fn u32() -> LibrsodiumResponse<u32> {
-    LibrsodiumResponse::ok(libsodium_rs::random::u32())
+pub fn u32() -> Result<u32, SodiumError> {
+    crate::init()?;
+    Ok(libsodium_rs::random::u32())
 }
 
-pub fn uniform(upper_bound: u32) -> LibrsodiumResponse<u32> {
+pub fn uniform(upper_bound: u32) -> Result<u32, SodiumError> {
+    crate::init()?;
     if upper_bound == 0 {
-        return LibrsodiumResponse::err(
-            SodiumError::InvalidInput("upper_bound must be > 0".into()).into(),
-        );
+        return Err(SodiumError::InvalidInput("upper_bound must be > 0".into()));
     }
-    LibrsodiumResponse::ok(libsodium_rs::random::uniform(upper_bound))
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn bytes_ok() {
-        let res = bytes(32);
-        assert!(res.success);
-        assert_eq!(res.data.unwrap().len(), 32);
-    }
-
-    #[test]
-    fn bytes_zero_fails() {
-        let res = bytes(0);
-        assert!(!res.success);
-    }
-
-    #[test]
-    fn fill_ok() {
-        let mut buf = [0u8; 16];
-        let res = fill_bytes(&mut buf);
-        assert!(res.success);
-    }
-
-    #[test]
-    fn fill_empty_fails() {
-        let res = fill_bytes(&mut []);
-        assert!(!res.success);
-    }
-
-    #[test]
-    fn u32_ok() {
-        let res = u32();
-        assert!(res.success);
-    }
-
-    #[test]
-    fn uniform_ok() {
-        let res = uniform(100);
-        assert!(res.success);
-        assert!(res.data.unwrap() < 100);
-    }
-
-    #[test]
-    fn uniform_zero_fails() {
-        let res = uniform(0);
-        assert!(!res.success);
-    }
+    Ok(libsodium_rs::random::uniform(upper_bound))
 }

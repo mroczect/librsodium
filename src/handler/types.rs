@@ -1,3 +1,4 @@
+use crate::handler::error::SodiumError;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -24,8 +25,18 @@ impl<T: Serialize> LibrsodiumResponse<T> {
             error: Some(error),
         }
     }
-    pub fn to_json(&self) -> String {
-        serde_json::to_string(self).unwrap_or_else(|_| r#"{"success":false}"#.into())
+    pub fn to_json(&self) -> Result<String, SodiumError> {
+        serde_json::to_string(self)
+            .map_err(|e| SodiumError::Operation(format!("JSON serialization failed: {}", e)))
+    }
+}
+
+impl<T: Serialize> From<Result<T, SodiumError>> for LibrsodiumResponse<T> {
+    fn from(result: Result<T, SodiumError>) -> Self {
+        match result {
+            Ok(data) => Self::ok(data),
+            Err(e) => Self::err(e.into()),
+        }
     }
 }
 

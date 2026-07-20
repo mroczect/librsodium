@@ -1,10 +1,13 @@
 use super::types::ErrorBody;
 use thiserror::Error;
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, Clone)]
 pub enum SodiumError {
     #[error("Init failed: {0}")]
     Init(String),
+
+    #[error("Library not initialized")]
+    NotInitialized,
 
     #[error("Random generation failed: {0}")]
     Random(String),
@@ -49,13 +52,22 @@ pub enum SodiumError {
     Operation(String),
 
     #[error("I/O error: {0}")]
-    Io(#[from] std::io::Error),
+    Io(String),
+}
+
+impl From<std::io::Error> for SodiumError {
+    fn from(e: std::io::Error) -> Self {
+        SodiumError::Io(e.to_string())
+    }
 }
 
 impl From<SodiumError> for ErrorBody {
     fn from(e: SodiumError) -> Self {
         match e {
             SodiumError::Init(m) => ErrorBody::new("INIT_FAILED", m),
+            SodiumError::NotInitialized => {
+                ErrorBody::new("NOT_INITIALIZED", "Library not initialized")
+            }
             SodiumError::Random(m) => ErrorBody::new("RANDOM_FAILED", m),
             SodiumError::InvalidSize { expected, got } => {
                 ErrorBody::new("INVALID_SIZE", format!("expected {expected}, got {got}"))
@@ -72,7 +84,7 @@ impl From<SodiumError> for ErrorBody {
             SodiumError::KeyExchange(m) => ErrorBody::new("KEY_EXCHANGE_FAILED", m),
             SodiumError::KeyDerivation(m) => ErrorBody::new("KEY_DERIVATION_FAILED", m),
             SodiumError::Operation(m) => ErrorBody::new("OPERATION_FAILED", m),
-            SodiumError::Io(e) => ErrorBody::new("IO_ERROR", e.to_string()),
+            SodiumError::Io(m) => ErrorBody::new("IO_ERROR", m),
         }
     }
 }
