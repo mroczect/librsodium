@@ -1,3 +1,4 @@
+use librsodium::LibrsodiumResponse;
 use librsodium::core::random;
 
 #[ctor::ctor(unsafe)]
@@ -7,77 +8,62 @@ fn initialize() {
 
 #[test]
 fn bytes_ok() {
-    let res = random::bytes(32);
-    assert!(res.success);
-    let data = res.data.unwrap();
+    let data = random::bytes(32).expect("bytes should succeed");
     assert_eq!(data.len(), 32);
     assert!(data.iter().any(|&b| b != 0));
 }
 
 #[test]
 fn bytes_zero_fails() {
-    let res = random::bytes(0);
-    assert!(!res.success);
-    let err = res.error.unwrap();
-    assert_eq!(err.code, "INVALID_SIZE");
+    let err = random::bytes(0).unwrap_err();
+    assert_eq!(err.to_string(), "Invalid size: expected 1, got 0");
 }
 
 #[test]
 fn bytes_max_ok() {
-    let res = random::bytes(1_073_741_824);
-    assert!(res.success);
+    random::bytes(1_073_741_824).expect("1 GB bytes should succeed");
 }
 
 #[test]
 fn bytes_too_large_fails() {
-    let res = random::bytes(1_073_741_825);
-    assert!(!res.success);
-    let err = res.error.unwrap();
-    assert_eq!(err.code, "INVALID_SIZE");
+    let err = random::bytes(1_073_741_825).unwrap_err();
+    assert!(err.to_string().contains("Invalid size"));
 }
 
 #[test]
 fn fill_bytes_ok() {
     let mut buf = [0u8; 64];
-    let res = random::fill_bytes(&mut buf);
-    assert!(res.success);
+    random::fill_bytes(&mut buf).expect("fill_bytes should succeed");
     assert!(buf.iter().any(|&b| b != 0));
 }
 
 #[test]
 fn fill_bytes_empty_fails() {
-    let res = random::fill_bytes(&mut []);
-    assert!(!res.success);
-    let err = res.error.unwrap();
-    assert_eq!(err.code, "INVALID_SIZE");
+    let err = random::fill_bytes(&mut []).unwrap_err();
+    assert_eq!(err.to_string(), "Invalid size: expected 1, got 0");
 }
 
 #[test]
 fn u32_ok() {
-    let res = random::u32();
-    assert!(res.success);
+    random::u32().expect("u32 should succeed");
 }
 
 #[test]
 fn u32_multiple_calls_give_different_values() {
-    let v1 = random::u32().data.unwrap();
-    let v2 = random::u32().data.unwrap();
+    let v1 = random::u32().unwrap();
+    let v2 = random::u32().unwrap();
     assert_ne!(v1, v2);
 }
 
 #[test]
 fn uniform_ok() {
-    let res = random::uniform(100);
-    assert!(res.success);
-    assert!(res.data.unwrap() < 100);
+    let n = random::uniform(100).unwrap();
+    assert!(n < 100);
 }
 
 #[test]
 fn uniform_zero_fails() {
-    let res = random::uniform(0);
-    assert!(!res.success);
-    let err = res.error.unwrap();
-    assert_eq!(err.code, "INVALID_INPUT");
+    assert!(random::uniform(0).is_err());
 }
 
 #[test]
@@ -85,7 +71,7 @@ fn uniform_distribution() {
     let bound = 10;
     let mut counts = [0usize; 10];
     for _ in 0..1000 {
-        let n = random::uniform(bound).data.unwrap() as usize;
+        let n = random::uniform(bound).unwrap() as usize;
         counts[n] += 1;
     }
     assert!(counts.iter().all(|&c| c > 0));
@@ -93,8 +79,11 @@ fn uniform_distribution() {
 
 #[test]
 fn test_random_json_serialization() {
-    let res = random::bytes(16);
-    let json = res.to_json();
+    let result = random::bytes(16);
+    let response = LibrsodiumResponse::from(result);
+    let json = response
+        .to_json()
+        .expect("JSON serialization should succeed");
     assert!(json.contains("\"success\":true"));
     assert!(json.contains("\"data\":["));
 }

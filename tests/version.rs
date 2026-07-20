@@ -8,27 +8,24 @@ fn initialize() {
 
 #[test]
 fn version_string_not_empty() {
-    let res = version::version_string();
-    assert!(res.success, "Version string must succeed");
-    assert!(!res.data.unwrap().is_empty(), "Version string must not be empty");
+    let s = version::version_string().expect("version_string should succeed");
+    assert!(!s.is_empty(), "Version string must not be empty");
 }
 
 #[test]
 fn version_major_not_negative() {
-    let res = version::library_version_major();
-    assert!(res.success, "Major version must succeed");
-    assert!(res.data.unwrap() >= 0, "Major version must be >= 0");
+    let major = version::library_version_major().expect("library_version_major should succeed");
+    assert!(major >= 0, "Major version must be >= 0");
 }
 
 #[test]
 fn version_minor_not_negative() {
-    let res = version::library_version_minor();
-    assert!(res.success, "Minor version must succeed");
-    assert!(res.data.unwrap() >= 0, "Minor version must be >= 0");
+    let minor = version::library_version_minor().expect("library_version_minor should succeed");
+    assert!(minor >= 0, "Minor version must be >= 0");
 }
 
 #[test]
 fn version_minimal_returns_bool() {
-    let res = version::library_minimal();
-    assert!(res.success, "Minimal check must succeed");
+    let minimal = version::library_minimal().expect("library_minimal should succeed");
+    let _: bool = minimal;
 }
