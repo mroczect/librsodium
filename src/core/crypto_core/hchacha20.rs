@@ -12,7 +12,6 @@ pub fn hchacha20(
     constant: Option<&[u8]>,
 ) -> Result<[u8; OUTPUTBYTES], SodiumError> {
     crate::init()?;
-
     if input.len() != INPUTBYTES {
         return Err(SodiumError::InvalidInput(format!(
             "invalid input length: expected {INPUTBYTES}, got {}",
@@ -33,6 +32,5 @@ pub fn hchacha20(
             c.len()
         )));
     }
-
     Ok(lib_hchacha20::hchacha20(input, key, constant)?)
 }
